@@ -3,6 +3,13 @@ pwq
 
  Process-safe Python interface to the CCL WorkQueue library supporting multiple WorkQueue
 
+# Dependencies
+
+* [CCTools](https://github.com/badi/cctools/tree/3.7.X-badi)
+* [Python](http://www.python.org)
+* [PyYAML](http://pyyaml.org/)
+* [PyZMQ](http://zeromq.github.io/pyzmq/#)
+
 
 # Usage
 

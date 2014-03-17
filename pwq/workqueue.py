@@ -416,9 +416,8 @@ class MkWorkQueue(object):
         self._debug = None
         self._logfile = None
 
-        # mdq additions
+        # additions
         self._replicate = None
-        self._generations = False
 
     def __call__(self):
 
@@ -444,10 +443,6 @@ class MkWorkQueue(object):
         ################################################## Task Replication
         if self._replicate is not None:
             q = _wq.replication.WorkQueue(q, maxreplicas=self._replicate)
-
-        ################################################## Generational Tasks
-        if self._generations:
-            q = _wq.generational.WorkQueue(q, self._generations)
 
         return q
 
@@ -535,10 +530,6 @@ class MkWorkQueue(object):
         Use task replication.
         """
         self._replicate = maxreplicates
-        return self
-
-    def generations(self, generations=True):
-        self._generations = generations
         return self
 
 

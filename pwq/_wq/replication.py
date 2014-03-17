@@ -92,6 +92,29 @@ class WorkQueue(decorator.WorkQueue):
     When replication is possible a the current running tasks are grouped by their replication count.
     A task is then chosen at random from the group with the smalled count an submited as a new task.
     A call to `replicate` will choose tasks and submit them until the queue is full.
+
+    Example usage:
+    A synchronization barrier causes the long-tail effect to slow down the overall computation.
+    ```
+    import pwq
+    import random
+    q = pwq.MkWorkQueue().debug('all').port(9123)
+
+    for _ in xrange(10):
+
+        # broadcast
+        for i in xrange(10):
+            t = pwq.Task('echo hello world %i;sleep %s' % (i, random.randint(5, 60)))
+            q.submit(t)
+
+        # barrier
+        while not q.empty():
+            q.replicate()
+            r = q.wait(10)
+            if r: update_results(r)
+
+        # do something
+    ```
     """
 
     def __init__(self, q, maxreplicas=1):

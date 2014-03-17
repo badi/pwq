@@ -396,7 +396,7 @@ class WorkerEmulator(object):
 
 class MkWorkQueue(object):
     """
-    Factory for creating WorkQueue object
+    Builder for creating WorkQueue object
     Call the factory instance to return the WorkQueue instance
     E.g.
       mk = MkWorkQueue()
@@ -543,7 +543,8 @@ class MkWorkQueue(object):
 
 
 def WorkQueue(builder):
-    import zmq
-    # ctx = zmq.Context()
+    """
+    Create a WorkQueue using a `MkWorkQueue` builder
+    """
     q = _wq.zeromq.WorkQueue(builder)
     return q

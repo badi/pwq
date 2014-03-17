@@ -20,5 +20,5 @@ pwq
 >>> t = pwq.Task('echo hello world')
 >>> q.submit(t)
 >>> q.wait(10) # then start a worker: $ work_queue_worker -d all localhost 9123
-<pwq.workqueue.Taskat ...>
+<pwq.workqueue.Task at ...>
 ```

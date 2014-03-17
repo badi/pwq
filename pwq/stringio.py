@@ -1,8 +1,8 @@
-import StringIO
+import StringIO as stringio
 
-class StringIO(StringIO.StringIO):
+class StringIO(stringio.StringIO):
     def __init__(self, *args, **kws):
-        super(StringIO, self).__init__(*args, **kws)
+        stringio.StringIO.__init__(self, *args, **kws)
         self.indentlvl = 0
 
     def indent(self, by=4):
@@ -12,9 +12,9 @@ class StringIO(StringIO.StringIO):
         self.indentlvl -= by
 
     def write(self, *args, **kws):
-        super(StringIO, self).write(self.indentlvl * ' ')
-        super(StringIO, self).write(*args, **kws)
+        stringio.StringIO.write(self, self.indentlvl * ' ')
+        stringio.StringIO.write(self, *args, **kws)
 
     def writeln(self, *args, **kws):
         self.write(*args, **kws)
-        super(StringIO, self).write('\n')
+        stringio.StringIO.write(self, '\n')

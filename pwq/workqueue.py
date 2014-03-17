@@ -157,6 +157,7 @@ class Task(object):
         self._named_files = dict()
         self._algorithm = Schedule.FCFS
         self._buffers = list()
+        self._id = None
         self._tag = None
         self._output = ''
         self._result = -1
@@ -188,6 +189,10 @@ class Task(object):
 
     def specify_tag(self, tag):
         self._tag = tag
+
+    @property
+    def id(self):
+        return self._id
 
     @property
     def command(self):
@@ -246,6 +251,11 @@ class Task(object):
         si.writeln('task:')
         si.indent()
         si.writeln('command: %s' % self.command)
+        si.writeln('uuid: %s' % self.uuid)
+        si.writeln('algorithm: %s' % self.algorithm)
+        si.writeln('tag: %s' % self.tag)
+        si.writeln('id: %s' % self.id)
+        si.writeln('result: %s' % self.result)
 
         if self._files:
             si.writeln('files:')
@@ -292,8 +302,10 @@ class Task(object):
 
     def from_task(self, ccl_task):
         """Update (in-place) this task the the result of running a task on a WorkQueue Worker"""
+        self._id     = ccl_task.id
         self._output = ccl_task.output
         self._result = ccl_task.result
+        return self
 
 class WorkerEmulator(object):
     """
@@ -532,6 +544,6 @@ class MkWorkQueue(object):
 
 def WorkQueue(builder):
     import zmq
-    ctx = zmq.Context()
-    q = _wq.zeromq.WorkQueue(builder, ctx)
+    # ctx = zmq.Context()
+    q = _wq.zeromq.WorkQueue(builder)
     return q

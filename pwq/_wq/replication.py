@@ -172,7 +172,6 @@ class WorkQueue(decorator.WorkQueue):
         count = 0
         self._tags.discard(task.uuid)
         while self.cancel_by_tasktag(task.uuid):
-            print 'cancelled', task.uuid
             count += 1
         return count
 

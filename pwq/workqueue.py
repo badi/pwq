@@ -152,6 +152,11 @@ class Taskable(object):
     Interface for objects that can have pwq.workqueue.Task` representations
     """
 
+    def uuid(self):
+        """
+        Return a str of `uuid.UUID`
+        """
+
     def to_task(self):
         """Convert the current object to a `Task`"""
         raise NotImplemented

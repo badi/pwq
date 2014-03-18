@@ -18,20 +18,19 @@ def _start_work_queue(zport, builder):
 
         if msg == 'submit':
             task = args[0]
-            ccl_task = task.to_ccl_task()
-            taskid = wq.submit(ccl_task)
-            task_table[taskid] = task
-            socket.send_pyobj(('ok', taskid))
+            wq.submit(task)
+            task_table[task.uuid] = task
+            socket.send_pyobj(('ok', task.uuid))
 
         elif msg == 'wait':
-            ccl_task = wq.wait(*args, **kws)
-            if ccl_task:
-                task = task_table[ccl_task.id]
-                task.from_ccl_task(ccl_task)
-                del task_table[ccl_task.id]
+            task = wq.wait(*args, **kws)
+            if task:
+                taskable = task_table[task.uuid]
+                taskable.from_ccl_task(task)
+                del task_table[task.uuid]
             else:
-                task = None
-            socket.send_pyobj(('ok', task))
+                taskable = None
+            socket.send_pyobj(('ok', taskable))
 
         elif msg == 'empty':
             empty = wq.empty()
@@ -57,34 +56,33 @@ class WorkQueue(object):
         self._process = multiprocessing.Process(target=_start_work_queue, args=(zport, builder))
         self._process.start()
 
-    # def __del__(self):
-    #     self._socket.send_pyobj(('stop', ()))
-    #     msg, result = self._socket.recv_pyobj()
-    #     self._process.terminate()
-
-    def submit(self, *args, **kws):
-        self._socket.send_pyobj(('submit', args, kws))
+    def __del__(self):
+        self._socket.send_pyobj(('stop', ()))
         msg, result = self._socket.recv_pyobj()
-        if msg == 'ok': return result
-        else: raise ValueError, 'ZQ error "submit" %s, %s' % (msg, result)
-
-    def wait(self, *args, **kws):
-        self._socket.send_pyobj(('wait', args, kws))
-        msg, result = self._socket.recv_pyobj()
-        if msg == 'ok': return result
-        else: raise ValueError, 'ZQ error "wait" %s, %s' % (msg, result)
-
-    def stop(self, *args, **kws):
-        self._socket.send_pyobj(('stop', args, kws))
-        msg, result = self._socket.recv_pyobj()
-        if msg == 'ok': return
-        else: raise ValueError, 'ZQ error "stop": %s, %s' % (msg, result)
         self._process.terminate()
 
-    def empty(self):
-        self._socket.send_pyobj(('empty', (), {}))
+    def _zmq_remote_call(self, name, args=None, kws=None):
+        args = args or ()
+        kws  = kws  or {}
+        self._socket.send_pyobj((name, args, kws))
         msg, result = self._socket.recv_pyobj()
         if msg == 'ok': return result
-        else: raise ValueError, 'ZQ error "empty" %s, %s' % (msg, result)
+        else: raise ValueError, 'ZMQ error" %s(%s, args=%s, kws=%s": %s, %s' % (name, args, kws, msg, result)
 
+    def submit(self, *args, **kws):
+        return self._zmq_remote_call('submit', args, kws)
 
+    def wait(self, *args, **kws):
+        return self._zmq_remote_call('wait', args, kws)
+
+    def stop(self, *args, **kws):
+        return self._zmq_remote_call('stop')
+
+    def empty(self):
+        return self._zmq_remote_call('empty')
+
+    def specify_log(self, *args, **kws):
+        return self._zmq_remote_call('specify_log', args, kws)
+
+    def replicate(self):
+        return self._zmq_remote_call('replicate')

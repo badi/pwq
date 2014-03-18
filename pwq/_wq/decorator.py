@@ -17,12 +17,12 @@ class WorkQueue(object):
 
         return attribute
 
-    def submit(self, mdq_task):
-        ccl_task = mdq_task.to_ccl_task()
-        ccl_task.specify_tag(mdq_task.uuid)
+    def submit(self, taskable):
+        ccl_task = taskable.to_ccl_task()
+        ccl_task.specify_tag(taskable.uuid)
         taskid = self._q.submit(ccl_task)
-        self._task_table[taskid] = mdq_task
-        return mdq_task.uuid
+        self._task_table[taskid] = taskable
+        return taskid
 
     def wait(self, *args, **kws):
         ccl_task = self._q.wait(*args, **kws)

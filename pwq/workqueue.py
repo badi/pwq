@@ -176,7 +176,6 @@ class Task(object):
         self._algorithm = Schedule.FCFS
         self._buffers = list()
         self._id = None
-        self._tag = None
         self._output = ''
         self._result = -1
         self._uuid = uuid.uuid1()
@@ -206,7 +205,8 @@ class Task(object):
         self.specify_file(local, remote=remote, cache=cache, name=name, filetype=FileType.OUTPUT)
 
     def specify_tag(self, tag):
-        self._tag = tag
+        """Tags are used internally so user use is disallowed"""
+        raise ValueError, 'Tags are used internally so user use is disallowed'
 
     @property
     def id(self):
@@ -271,7 +271,6 @@ class Task(object):
         si.writeln('command: %s' % self.command)
         si.writeln('uuid: %s' % self.uuid)
         si.writeln('algorithm: %s' % self.algorithm)
-        si.writeln('tag: %s' % self.tag)
         si.writeln('id: %s' % self.id)
         si.writeln('result: %s' % self.result)
 
@@ -314,8 +313,7 @@ class Task(object):
         task.specify_algorithm(self.algorithm)
         for b in self._buffers:
             b.add_to_task(task)
-        if self._tag is not None:
-            task.specify_tag(self._tag)
+        task.specify_tag(self.uuid)
         return task
 
     def from_ccl_task(self, ccl_task):

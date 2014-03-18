@@ -125,8 +125,8 @@ class WorkQueue(decorator.WorkQueue):
     ################################################################################ WQ API
 
     def submit(self, task):
-        self._tags.add(task.tag)
-        self._tasks[task.tag] = task
+        self._tags.add(task.uuid)
+        self._tasks[task.uuid] = task
         return super(WorkQueue, self).submit(task)
 
     def wait(self, *args, **kws):
@@ -170,8 +170,9 @@ class WorkQueue(decorator.WorkQueue):
         Returns the number of tasks canceled.
         """
         count = 0
-        self._tags.discard(task.tag)
-        while self.cancel_by_tasktag(task.tag):
+        self._tags.discard(task.uuid)
+        while self.cancel_by_tasktag(task.uuid):
+            print 'cancelled', task.uuid
             count += 1
         return count
 

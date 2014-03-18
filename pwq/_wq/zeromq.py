@@ -10,7 +10,13 @@ def _start_work_queue(zport, builder):
     socket = context.socket(zmq.PAIR)
     socket.connect("tcp://0.0.0.0:%s" % zport)
 
+    # Task.id will be unique since there
+    # is only one master in this process
+    # so the table should be indexed by Task.id
     task_table = dict()
+
+    def zreturn(msg, value):
+        socket.send_pyobj((msg, value))
 
     while True:
         msg, args, kws = socket.recv_pyobj()
@@ -18,9 +24,9 @@ def _start_work_queue(zport, builder):
 
         if msg == 'submit':
             task = args[0]
-            wq.submit(task)
-            task_table[task.uuid] = task
-            socket.send_pyobj(('ok', task.uuid))
+            taskid = wq.submit(task)
+            task_table[taskid] = task
+            zreturn('ok', taskid)
 
         elif msg == 'wait':
             task = wq.wait(*args, **kws)
@@ -30,14 +36,14 @@ def _start_work_queue(zport, builder):
                 del task_table[task.uuid]
             else:
                 taskable = None
-            socket.send_pyobj(('ok', taskable))
+            zreturn('ok', taskable)
 
         elif msg == 'empty':
             empty = wq.empty()
-            socket.send_pyobj(('ok', empty))
+            zreturn('ok', empty)
 
         elif msg == 'stop':
-            socket.send_pyobj(('ok', ()))
+            zreturn('ok', ())
             return
 
         else:
@@ -46,7 +52,7 @@ def _start_work_queue(zport, builder):
                 result = attr(*args, **kws)
             else:
                 result = attr
-            socket.send_pyobj(('ok', result))
+            zreturn('ok', result)
 
 class WorkQueue(object):
     def __init__(self, builder):

@@ -18,7 +18,7 @@ class WorkQueue(object):
         return attribute
 
     def submit(self, mdq_task):
-        ccl_task = mdq_task.to_task()
+        ccl_task = mdq_task.to_ccl_task()
         ccl_task.specify_tag(mdq_task.uuid)
         taskid = self._q.submit(ccl_task)
         self._task_table[taskid] = mdq_task
@@ -27,7 +27,7 @@ class WorkQueue(object):
     def wait(self, *args, **kws):
         ccl_task = self._q.wait(*args, **kws)
         if ccl_task:
-            mdq_task = self._task_table[ccl_task.id]
+            task = self._task_table[ccl_task.id]
             del self._task_table[ccl_task.id]
-            mdq_task.from_task(ccl_task)
-            return mdq_task
+            task.from_ccl_task(ccl_task)
+            return task

@@ -18,7 +18,7 @@ def _start_work_queue(zport, builder):
 
         if msg == 'submit':
             task = args[0]
-            ccl_task = task.to_task()
+            ccl_task = task.to_ccl_task()
             taskid = wq.submit(ccl_task)
             task_table[taskid] = task
             socket.send_pyobj(('ok', taskid))
@@ -27,7 +27,7 @@ def _start_work_queue(zport, builder):
             ccl_task = wq.wait(*args, **kws)
             if ccl_task:
                 task = task_table[ccl_task.id]
-                task.from_task(ccl_task)
+                task.from_ccl_task(ccl_task)
                 del task_table[ccl_task.id]
             else:
                 task = None

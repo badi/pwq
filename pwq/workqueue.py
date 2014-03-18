@@ -147,6 +147,19 @@ class Schedule:
     TIME  = ccl.WORK_QUEUE_SCHEDULE_TIME
     RAND  = ccl.WORK_QUEUE_SCHEDULE_RAND
 
+class Taskable(object):
+    """
+    Interface for objects that can have pwq.workqueue.Task` representations
+    """
+
+    def to_task(self):
+        """Convert the current object to a `Task`"""
+        raise NotImplemented
+
+    def update_task(self, obj):
+        """Update the current object with the values from a `Task`"""
+        raise NotImplemented
+
 class Task(object):
     """
     A pure python description of a task mirroring the `work_queue.Task` API
@@ -286,7 +299,7 @@ class Task(object):
 
     ################################################################################ To WQ Tasks
 
-    def to_task(self):
+    def to_ccl_task(self):
         """
         Return a `work_queue.Task` object that can be submitted to a `work_queue.WorkQueue`
         """
@@ -300,7 +313,7 @@ class Task(object):
             task.specify_tag(self._tag)
         return task
 
-    def from_task(self, ccl_task):
+    def from_ccl_task(self, ccl_task):
         """Update (in-place) this task the the result of running a task on a WorkQueue Worker"""
         self._id     = ccl_task.id
         self._output = ccl_task.output

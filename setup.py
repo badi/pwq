@@ -105,7 +105,7 @@ def find_packages():
     contributors, licensed under the BSD license.
     """
     packages = []
-    for dir,subdirs,files in os.walk('mdprep'):
+    for dir,subdirs,files in os.walk('.'):
         package = dir.replace(os.path.sep, '.')
         if '__init__.py' not in files:
             # not a package

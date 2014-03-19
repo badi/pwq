@@ -77,7 +77,7 @@ class _TagSet(object):
             self._tags[key].discard(tag)
 
     def __len__(self):
-        return reduce(lambda s, k: s + len(self._tags[k]), self._tags.iterkeys(), 0 )
+        return sum(map(len, self._tags.itervalues()))
 
     def __str__(self):
         d = dict([(k,len(s)) for k,s in self._tags.iteritems()])

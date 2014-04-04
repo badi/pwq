@@ -1,7 +1,7 @@
 import pwq
 
-mk = pwq.MkWorkQueue().port(9123)
-q = pwq.WorkQueue(mk)
+mk = pwq.MkWorkQueue().replicate(1).port(9123)
+q = mk() #pwq.WorkQueue(mk)
 
 
 for i in xrange(10):
@@ -13,4 +13,4 @@ while not q.empty():
     if r:
         print r.id, r.result
 
-q.stop()
+

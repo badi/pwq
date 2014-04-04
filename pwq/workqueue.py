@@ -2,7 +2,8 @@
 import work_queue as ccl
 
 from . import _wq
-from . import stringio
+
+import pxul.StringIO as stringio
 
 import base64
 import copy
@@ -47,11 +48,9 @@ class File(object):
                  filetype = self._filetype)
 
     def to_yaml(self):
-        si = stringio.StringIO()
-        self.add_yaml(si)
-        s = si.getvalue()
-        si.close()
-        return s
+        with stringio.StringIO() as si:
+            self.add_yaml(si)
+            return si.getvalue()
 
     def add_yaml(self, builder):
         """Add the yaml representation of this File to string builder"""
@@ -265,38 +264,36 @@ class Task(object):
         """
         Represent this Task as a yaml string
         """
-        si = stringio.StringIO()
-        si.writeln('task:')
-        si.indent()
-        si.writeln('command: %s' % self.command)
-        si.writeln('uuid: %s' % self.uuid)
-        si.writeln('algorithm: %s' % self.algorithm)
-        si.writeln('id: %s' % self.id)
-        si.writeln('result: %s' % self.result)
-
-        if self._files:
-            si.writeln('files:')
+        with stringio.StringIO() as si:
+            si.writeln('task:')
             si.indent()
-            for f in self._files:
-                si.writeln('- ')
-                si.indent()
-                f.add_yaml(si)
-                si.dedent()
-            si.dedent()
+            si.writeln('command: %s' % self.command)
+            si.writeln('uuid: %s' % self.uuid)
+            si.writeln('algorithm: %s' % self.algorithm)
+            si.writeln('id: %s' % self.id)
+            si.writeln('result: %s' % self.result)
 
-        if self._buffers:
-            si.writeln('buffers:')
-            si.indent()
-            for b in self._buffers:
-                si.writeln('-')
+            if self._files:
+                si.writeln('files:')
                 si.indent()
-                b.add_yaml(si)
+                for f in self._files:
+                    si.writeln('- ')
+                    si.indent()
+                    f.add_yaml(si)
+                    si.dedent()
                 si.dedent()
-            si.dedent()
 
-        s = si.getvalue()
-        si.close()
-        return s
+            if self._buffers:
+                si.writeln('buffers:')
+                si.indent()
+                for b in self._buffers:
+                    si.writeln('-')
+                    si.indent()
+                    b.add_yaml(si)
+                    si.dedent()
+                si.dedent()
+
+            return si.getvalue()
 
     def __str__(self):
         return self.to_yaml()

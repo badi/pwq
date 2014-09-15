@@ -177,6 +177,7 @@ class Task(object):
         self._id = None
         self._output = ''
         self._result = -1
+        self._success = False
         self._uuid = uuid.uuid1()
 
     ################################################################################ WQ API wrapper
@@ -226,6 +227,11 @@ class Task(object):
     @property
     def result(self):
         return self._result
+
+    @property
+    def success(self):
+        "Indicates if the task completed successfully and transferred all result files"
+        return self._success
 
     def _filter_files_by(self, filetype):
         return filter(lambda f: f.type == filetype, self._files)
@@ -318,6 +324,7 @@ class Task(object):
         self._id     = ccl_task.id
         self._output = ccl_task.output
         self._result = ccl_task.result
+        self._success = ccl_task.result == 0 and ccl_task.return_status == 0
         return self
 
 class WorkerEmulator(object):

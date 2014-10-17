@@ -172,13 +172,26 @@ class Task(object):
         self._command = command
         self._files = list()
         self._named_files = dict()
-        self._algorithm = Schedule.FCFS
         self._buffers = list()
+        self._uuid = uuid.uuid1()
+
+        self._algorithm = Schedule.FCFS
         self._id = None
         self._output = ''
         self._result = -1
         self._success = False
-        self._uuid = uuid.uuid1()
+        self._send_input_start = -1
+        self._send_input_stop  = -1
+        self._execute_cmd_start = -1
+        self._execute_cmd_stop  = -1
+        self._cmd_execution_time = -1
+        self._receive_output_start = -1
+        self._receive_output_stop  = -1
+        self._bytes_received = -1
+        self._bytes_sent = -1
+        self._bytes_transfered = -1
+        self._transfer_time = -1
+
 
     ################################################################################ WQ API wrapper
 
@@ -232,6 +245,66 @@ class Task(object):
     def success(self):
         "Indicates if the task completed successfully and transferred all result files"
         return self._success
+
+    @property
+    def send_input_start(self):
+        "The time when the task started to transfer input files"
+        return self._send_input_start
+
+    @property
+    def send_input_stop(self):
+        "The time when the task stopped transferring input files"
+        return self._send_input_stop
+
+    @property
+    def execute_cmd_start(self):
+        "The time when the task began executing"
+        return self._execute_cmd_start
+
+    @property
+    def execute_cmd_stop(self):
+        "The time when the task finished executing"
+        return self._execute_cmd_stop
+
+    @property
+    def cmd_execution_time(self):
+        "The time (in microseconds) spent executing the command"
+        return self._cmd_execution_time
+
+    @property
+    def receive_output_start(self):
+        "The time when the task started tranferring output files"
+        return self._receive_output_start
+
+    @property
+    def receive_output_stop(self):
+        "The time when the task stopped transferring output files"
+        return self._receive_output_stop
+
+    @property
+    def receive_output_time(self):
+        "The time spent transferring output files"
+        return self._receive_output_stop - self._receive_output_start
+
+    @property
+    def bytes_received(self):
+        "The number of bytes received since the task came online"
+        return self._bytes_received
+
+    @property
+    def bytes_sent(self):
+        "The number of bytes sent since the task came online"
+        return self._bytes_sent
+
+    @property
+    def bytes_transferred(self):
+        "The total number of bytes transferred"
+        return self._bytes_transferred
+
+    @property
+    def transfer_time(self):
+        "The total amount of time (in microseconds) spent transferring data"
+        return self._transfer_time
 
     def _filter_files_by(self, filetype):
         return filter(lambda f: f.type == filetype, self._files)
@@ -325,6 +398,22 @@ class Task(object):
         self._output = ccl_task.output
         self._result = ccl_task.result
         self._success = ccl_task.result == 0 and ccl_task.return_status == 0
+        self._send_input_start = ccl_task.send_input_start
+        self._send_input_stop  = ccl_task.send_input_finish
+        self._execute_cmd_start = ccl_task.execute_cmd_start
+        self._execute_cmd_stop  = ccl_task.execute_cmd_finish
+        self._cmd_execution_time = ccl_task.cmd_execution_time
+        self._receive_output_start = ccl_task.receive_output_start
+        self._receive_output_stop  = ccl_task.receive_output_finish
+        self._bytes_transferred = ccl_task.total_bytes_transferred
+        self._transfer_time = ccl_task.total_transfer_time
+
+        try:
+            # only in CCTools version 4
+            self._bytes_received = ccl_task.total_bytes_received
+            self._bytes_sent     = ccl_task.total_bytes_sent
+        except AttributeError: pass
+
         return self
 
 class WorkerEmulator(object):

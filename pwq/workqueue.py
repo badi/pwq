@@ -172,7 +172,7 @@ class TaskStatsLogger(object):
         self._mode = mode
         self.delim = delimiter
 
-        attrs = 'result host send_input_start send_input_stop cmd_execution_time'.split()
+        attrs = 'result host hostname send_input_start send_input_stop cmd_execution_time'.split()
         attrs+= 'receive_output_start receive_output_stop transfer_time bytes_transferred'.split()
         self.attrs  = attrs
         self.header = self.delim.join(attrs) + '\n'
@@ -209,6 +209,7 @@ class Task(object):
         self._result = -1
         self._success = False
         self._host = ''
+        self._hostname = ''
         self._send_input_start = -1
         self._send_input_stop  = -1
         self._execute_cmd_start = -1
@@ -272,8 +273,13 @@ class Task(object):
 
     @property
     def host(self):
-        "The host on which the task executed"
+        "The host address of the node on which the task executed"
         return self._host
+
+    @property
+    def hostname(self):
+        "The hostname of the node on which the task executed"
+        return self._hostname
 
     @property
     def success(self):
@@ -433,6 +439,7 @@ class Task(object):
         self._result = ccl_task.result
         self._success = ccl_task.result == 0 and ccl_task.return_status == 0
         self._host = ccl_task.host
+        self._hostname = ccl_task.hostname
         self._send_input_start = ccl_task.send_input_start
         self._send_input_stop  = ccl_task.send_input_finish
         self._execute_cmd_start = ccl_task.execute_cmd_start

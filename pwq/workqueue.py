@@ -164,6 +164,32 @@ class Taskable(object):
         """Update the current object with the values from a `Task`"""
         raise NotImplemented
 
+class TaskStatsLogger(object):
+    def __init__(self, path, mode='a', delimiter=','):
+        self._path = path
+        self._mode = mode
+        self.delim = delimiter
+
+        attrs = 'result send_input_start send_input_stop cmd_execution_time'.split()
+        attrs+= 'receive_output_start receive_output_stop transfer_time bytes_transferred'.split()
+        self.attrs  = attrs
+        self.header = self.delim.join(attrs) + '\n'
+
+        pxul.os.ensure_dir(os.path.dirname(self._path))
+        self.write(self.header)
+
+    def write(self, string):
+        with gzip.open(self._path, self._mode) as fd:
+            fd.write(string)
+
+    def process(self, task):
+        vals = []
+        for attr in self.attrs:
+            val = getattr(task, attr)
+            vals.append(str(val))
+        string = self.delim.join(vals) + '\n'
+        self.write(string)
+
 class Task(object):
     """
     A pure python description of a task mirroring the `work_queue.Task` API

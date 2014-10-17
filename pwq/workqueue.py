@@ -3,6 +3,7 @@ import work_queue as ccl
 
 from . import _wq
 
+from pxul.os import ensure_dir
 import pxul.StringIO as stringio
 
 import base64
@@ -14,6 +15,7 @@ import socket
 import subprocess
 import tempfile
 import uuid
+import gzip
 
 class FileType:
     INPUT  = ccl.WORK_QUEUE_INPUT
@@ -175,7 +177,7 @@ class TaskStatsLogger(object):
         self.attrs  = attrs
         self.header = self.delim.join(attrs) + '\n'
 
-        pxul.os.ensure_dir(os.path.dirname(self._path))
+        ensure_dir(os.path.dirname(self._path))
         self.write(self.header)
 
     def write(self, string):

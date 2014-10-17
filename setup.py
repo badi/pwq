@@ -29,7 +29,7 @@ else:
     setup_kws['requires'] = dependencies
 
 ###################################################################### Version information
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 ISRELEASED = False
 __version__ = VERSION
 
